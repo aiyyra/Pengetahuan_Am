@@ -2,15 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Button } from "@/components/ui/button";
-import { Zap, Menu, Twitter, Linkedin, Github, Mail } from "lucide-react";
+import { Zap, Twitter, Linkedin, Github, Mail } from "lucide-react";
 import Link from "next/link";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
+import { TopNav } from "./_components/topnav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,56 +35,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           {/* Header */}
-          <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-              <div className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">
-                  <Zap className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">Ayyra</span>
-              </div>
-
-              <nav className="hidden md:flex items-center space-x-8">
-                <Link
-                  href="#features"
-                  className="text-sm font-medium hover:text-emerald-600 transition-colors"
-                >
-                  Features
-                </Link>
-                <Link
-                  href="#testimonials"
-                  className="text-sm font-medium hover:text-emerald-600 transition-colors"
-                >
-                  Testimonials
-                </Link>
-                <Link
-                  href="#contact"
-                  className="text-sm font-medium hover:text-emerald-600 transition-colors"
-                >
-                  Contact
-                </Link>
-              </nav>
-
-              <div className="flex items-center space-x-4">
-                <SignedOut>
-                  <SignInButton>
-                    <Button variant="ghost" className="hidden md:inline-flex">
-                      Sign In
-                    </Button>
-                  </SignInButton>
-                  <Button variant="ghost" className="hidden md:inline-flex">
-                    Log In
-                  </Button>
-                </SignedOut>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  Get Started
-                </Button>
-                <SignedIn>
-                  <UserButton />
-                </SignedIn>
-              </div>
-            </div>
-          </header>
+          <TopNav />
 
           {/* Main Content */}
           <main>{children}</main>
