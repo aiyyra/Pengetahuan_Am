@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -18,11 +19,98 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { getMyScore } from "@/server/queries";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import { Progress } from "@/components/ui/progress";
+import { PengetahuanAmScore } from "@/types";
+
+async function Scores() {
+  const userScores: PengetahuanAmScore[] = await getMyScore();
+
+  const allTopics = [
+    "Kenegaraan dan Identiti Nasional Malaysia",
+    "Struktur Pentadbiran dan Pemerintahan Malaysia",
+    "Geografi Malaysia",
+    "Pengetahuan Geografi Dunia",
+  ];
+  const maxScorePerTopic = 10;
+
+  const flatScores = userScores.flatMap((score) => [
+    {
+      title: allTopics[0],
+      score: score.topicA,
+      maxScore: maxScorePerTopic,
+    },
+    {
+      title: allTopics[1],
+      score: score.topicB,
+      maxScore: maxScorePerTopic,
+    },
+    {
+      title: allTopics[2],
+      score: score.topicC,
+      maxScore: maxScorePerTopic,
+    },
+    {
+      title: allTopics[3],
+      score: score.topicD,
+      maxScore: maxScorePerTopic,
+    },
+  ]);
+
+  return (
+    <>
+      {flatScores.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mx-auto max-w-6xl w-full">
+          {flatScores.map((item, index) => (
+            <Card
+              key={index}
+              className="shadow-md hover:shadow-lg transition-shadow"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium">
+                  {item.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold mb-2">
+                  {item.score}/{item.maxScore}
+                </div>
+                <Progress
+                  value={(item.score / item.maxScore) * 100}
+                  className="h-2"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  {item.score >= item.maxScore * 0.7
+                    ? "Great job!"
+                    : "Keep practicing!"}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center text-gray-600 text-lg">
+          No scores recorded yet. Signup to save your progress
+          <div className="mt-6">
+            <Link href="#quiz">
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+                Start Your First Quiz
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
+
       <section className="pt-8 pb-20 md:pt-12 md:pb-32">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
@@ -49,9 +137,8 @@ export default function HomePage() {
                   detailed performance analytics.
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {" "}
-                {/* Removed lg:justify-start */}
                 <Button
                   size="lg"
                   className="bg-emerald-600 hover:bg-emerald-700"
@@ -62,10 +149,9 @@ export default function HomePage() {
                 <Button size="lg" variant="outline">
                   View Topics
                 </Button>
-              </div>
+              </div> */}
               <div className="flex items-center space-x-8 text-sm text-gray-600 justify-center">
                 {" "}
-                {/* Removed lg:justify-start */}
                 <div className="flex items-center space-x-2">
                   <Check className="h-4 w-4 text-emerald-600" />
                   <span>Free to join</span>
@@ -89,9 +175,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       {/* Quiz Topics Section */}
-      <section id="quiz" className="py-20 bg-gray-50">
+      <section id="topik" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center space-y-4 mb-16">
             <Badge
@@ -194,41 +279,48 @@ export default function HomePage() {
       </section>
 
       {/* Performance Tracking Section */}
-      <section className="py-20">
+      <section className="py-20 bg-gray-50">
+        {" "}
+        {/* Added bg-gray-50 for distinction */}
         <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center space-y-8 max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-              Track Your Learning Journey
-            </h2>
-            <p className="text-xl text-gray-600">
-              Monitor your progress across all quiz topics with detailed
-              analytics. See your improvement over time, identify your strongest
-              subjects, and compete with friends on the leaderboard.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700">
-                View Your Stats
-                <TrendingUp className="ml-2 h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline">
-                Join Leaderboard
-                <Trophy className="ml-2 h-4 w-4" />
-              </Button>
+          <div className="flex flex-col items-center">
+            {" "}
+            {/* Centering wrapper */}
+            <div className="text-center space-y-8 max-w-3xl mx-auto mb-12">
+              <Badge
+                variant="secondary"
+                className="bg-emerald-100 text-emerald-800"
+              >
+                Your Progress
+              </Badge>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+                Track Your Learning Journey
+              </h2>
+              <p className="text-xl text-gray-600">
+                Monitor your progress across all quiz topics with detailed
+                analytics. See your improvement over time, identify your
+                strongest subjects, and compete with friends on the leaderboard.
+              </p>
             </div>
-            <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
-              <div className="flex items-center space-x-2">
-                <Check className="h-4 w-4 text-emerald-600" />
-                <span>Detailed analytics</span>
+            <SignedIn>
+              <Scores />
+            </SignedIn>
+            <SignedOut>
+              <div className="text-center text-gray-600 text-lg">
+                No scores recorded yet. Sign in to see your progress here!
+                <div className="mt-6">
+                  <SignInButton>
+                    <Button
+                      size="lg"
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Sign In
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </SignInButton>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Check className="h-4 w-4 text-emerald-600" />
-                <span>Progress tracking</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Check className="h-4 w-4 text-emerald-600" />
-                <span>Global rankings</span>
-              </div>
-            </div>
+            </SignedOut>
           </div>
         </div>
       </section>

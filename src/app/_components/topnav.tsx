@@ -11,39 +11,40 @@ export function TopNav() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600">
             <Zap className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold">Ayyra</span>
+          <Link href={"/"}>
+            <span className="text-xl font-bold">Ayyra</span>
+          </Link>
         </div>
 
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link
-            href="#features"
-            className="text-sm font-medium hover:text-emerald-600 transition-colors"
-          >
-            Features
-          </Link>
+        <div className="flex items-center justify-end space-x-4">
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link
+              href="#topik"
+              className="text-sm font-medium hover:text-emerald-600 transition-colors"
+            >
+              Topik
+            </Link>
 
-          <Link
-            href="#contact"
-            className="text-sm font-medium hover:text-emerald-600 transition-colors"
-          >
-            Contact
-          </Link>
-        </nav>
+            <Link
+              href="#rekod"
+              className="text-sm font-medium hover:text-emerald-600 transition-colors"
+            >
+              Rekod
+            </Link>
+          </nav>
 
-        <div className="flex items-center space-x-4">
-          <SignedOut>
-            <SignInButton>
-              <Button variant="ghost" className="hidden md:inline-flex">
-                Sign In
-              </Button>
-            </SignInButton>
-          </SignedOut>
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
-            Get Started
-          </Button>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+          <div className="flex items-center space-x-4">
+            <SignedOut>
+              <SignInButton>
+                <Button variant="ghost" className="hidden md:inline-flex">
+                  Sign In
+                </Button>
+              </SignInButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </div>
         </div>
       </div>
     </header>

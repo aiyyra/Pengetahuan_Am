@@ -94,6 +94,7 @@ export default async function QuizPage({ params }: QuizPageProps) {
   // Create quiz data object
   const quizData: QuizData = {
     title: formatTopicTitle(topicSlug),
+    topicSlug: topicSlug,
     questions: randomQuestions,
   };
 

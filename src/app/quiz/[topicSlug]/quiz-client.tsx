@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { QuizData } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,18 @@ type QuizClientProps = {
   quizData: QuizData;
 };
 
+// Helper function to shuffle an array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export default function QuizClient({ quizData }: QuizClientProps) {
+  const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -35,7 +47,15 @@ export default function QuizClient({ quizData }: QuizClientProps) {
   );
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
 
-  const currentQuestion = quizData.questions[currentQuestionIndex];
+  // Memoize shuffled options for each question to ensure they don't change on re-renders
+  const questionsWithShuffledOptions = useMemo(() => {
+    return quizData.questions.map((question) => ({
+      ...question,
+      shuffledOptions: shuffleArray(question.options),
+    }));
+  }, [quizData.questions]);
+
+  const currentQuestion = questionsWithShuffledOptions[currentQuestionIndex];
   const totalQuestions = quizData.questions.length;
   const progressValue =
     ((currentQuestionIndex + (showResults ? 1 : 0)) / totalQuestions) * 100;
@@ -80,6 +100,38 @@ export default function QuizClient({ quizData }: QuizClientProps) {
     setAnsweredCorrectly(null);
   }, []);
 
+  const handleFinishQuiz = useCallback(async () => {
+    try {
+      // Save the score to database
+      const response = await fetch("/api/quiz/save-score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topicSlug: quizData.topicSlug,
+          score: score,
+          totalQuestions: totalQuestions,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.isNewRecord) {
+          // Could add a toast notification here for new high score
+          console.log("New high score achieved!", result.savedScore);
+        }
+      } else {
+        console.error("Failed to save score");
+      }
+    } catch (error) {
+      console.error("Error saving score:", error);
+    }
+
+    // Redirect to homepage
+    router.push("/");
+  }, [score, totalQuestions, quizData.topicSlug, router]);
+
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <Card className="shadow-lg">
@@ -104,7 +156,7 @@ export default function QuizClient({ quizData }: QuizClientProps) {
                 className="space-y-3"
                 disabled={isSubmitting} // Disable options during submission
               >
-                {currentQuestion.options.map((option) => (
+                {currentQuestion.shuffledOptions.map((option) => (
                   <div key={option} className="flex items-center space-x-3">
                     <RadioGroupItem value={option} id={option} />
                     <label
@@ -186,10 +238,10 @@ export default function QuizClient({ quizData }: QuizClientProps) {
                 You scored {score} out of {totalQuestions}
               </p>
               <Button
-                onClick={handleRestartQuiz}
+                onClick={handleFinishQuiz}
                 className="w-full bg-emerald-600 hover:bg-emerald-700"
               >
-                Restart Quiz
+                Back
                 <RefreshCw className="ml-2 h-4 w-4" />
               </Button>
             </div>
