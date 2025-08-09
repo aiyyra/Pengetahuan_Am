@@ -1,0 +1,17 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        # This passes the Clerk publishable key from your .env file into the Dockerfile during the build.
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    image: your-username/my-next-app
+    # This loads all variables from your .env file into the container at runtime.
+    env_file:
+      - ./.env
+    # This maps port 3000 on your local machine to port 3000 inside the container.
+    ports:
+      - "3000:3000"

@@ -7,16 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Check,
-  Trophy,
-  TrendingUp,
-  ArrowRight,
-  Flag,
-  Building2,
-  Map,
-  Earth,
-} from "lucide-react";
+import { Check, ArrowRight, Flag, Building2, Map, Earth } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getMyScore } from "@/server/queries";
@@ -137,19 +128,6 @@ export default function HomePage() {
                   detailed performance analytics.
                 </p>
               </div>
-              {/* <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {" "}
-                <Button
-                  size="lg"
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                >
-                  Start Learning
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button size="lg" variant="outline">
-                  View Topics
-                </Button>
-              </div> */}
               <div className="flex items-center space-x-8 text-sm text-gray-600 justify-center">
                 {" "}
                 <div className="flex items-center space-x-2">
@@ -165,7 +143,7 @@ export default function HomePage() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=600&width=800&text=PengetahuanAm+Quiz+Interface"
+                src="/placeholder.png?height=600&width=800&text=PengetahuanAm+Quiz+Interface"
                 alt="PengetahuanAm Quiz Interface"
                 width={800}
                 height={600}

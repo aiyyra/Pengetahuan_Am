@@ -2,6 +2,7 @@
 // import QuizClient from "./quiz-client";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { NextRequest } from "next/server";
 
 import { FormattedQuestion, QuizData, QuizQuestion } from "@/types";
 import QuizClient from "./quiz-client";
@@ -72,18 +73,27 @@ export default async function QuizPage({ params }: QuizPageProps) {
     notFound();
   }
 
-  const baseUrl =
-    process.env.NODE_ENV === "development"
-      ? `http://localhost:${process.env.PORT || 300}`
-      : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  // For server-side rendering, we can call the API route directly
+  // instead of making an HTTP request, especially in Docker environments
+  let data: { questions: FormattedQuestion[] };
 
-  const res = await fetch(`${baseUrl}/api/quiz/${topicSlug}`);
+  try {
+    // Import the API route handler directly
+    const { GET } = await import(`@/app/api/quiz/[topicSlug]/route`);
 
-  if (!res.ok) {
+    // Create a mock NextRequest object
+    const mockRequest = new NextRequest(
+      `http://localhost:3000/api/quiz/${topicSlug}`
+    );
+    const mockContext = { params: Promise.resolve({ topicSlug }) };
+
+    // Call the API handler directly
+    const response = await GET(mockRequest, mockContext);
+    data = await response.json();
+  } catch (error) {
+    console.error("Error calling API route directly:", error);
     throw new Error("Failed to fetch quiz data");
   }
-
-  const data: { questions: FormattedQuestion[] } = await res.json();
 
   // Convert FormattedQuestions to QuizQuestions
   const allQuizQuestions = data.questions.map(convertToQuizQuestion);

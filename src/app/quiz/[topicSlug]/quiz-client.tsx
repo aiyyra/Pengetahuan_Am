@@ -92,14 +92,6 @@ export default function QuizClient({ quizData }: QuizClientProps) {
     }
   }, [currentQuestionIndex, totalQuestions]);
 
-  const handleRestartQuiz = useCallback(() => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setScore(0);
-    setShowResults(false);
-    setAnsweredCorrectly(null);
-  }, []);
-
   const handleFinishQuiz = useCallback(async () => {
     try {
       // Save the score to database

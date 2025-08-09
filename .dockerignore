@@ -1,0 +1,25 @@
+# .dockerignore
+
+# Git and Docker specific files
+.git
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Environment files - CRITICAL for security
+# This prevents your secrets from being baked into the image.
+.env
+.env.local
+.env.production
+.env.development
+
+# Node.js dependencies
+node_modules
+
+# Next.js build artifacts and caches
+.next
+out
+
+# Other common files
+README.md
