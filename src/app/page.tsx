@@ -18,6 +18,8 @@ import { PengetahuanAmScore } from "@/types";
 async function Scores() {
   const userScores: PengetahuanAmScore[] = await getMyScore();
 
+  if (!userScores || userScores.length === 0) return null;
+
   const allTopics = [
     "Kenegaraan dan Identiti Nasional Malaysia",
     "Struktur Pentadbiran dan Pemerintahan Malaysia",

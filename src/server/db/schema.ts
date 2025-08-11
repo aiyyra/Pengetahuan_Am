@@ -3,11 +3,12 @@
 
 import { sql } from "drizzle-orm";
 import {
-  pgTableCreator,
+  // pgTableCreator,
   serial,
   timestamp,
   varchar,
   integer,
+  pgTable,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -16,22 +17,56 @@ import {
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `t3gallery_${name}`);
 
-export const pengetahuan_am_score_table = createTable(
-  "pengetahuan_am_score",
-  {
-    id: serial("id").primaryKey(),
-    topicA: integer().notNull(),
-    topicB: integer().notNull(),
-    topicC: integer().notNull(),
-    topicD: integer().notNull(),
+// Pengetahuan Am Score Table
+export const pengetahuan_am_score_table = pgTable("pengetahuan_am_score", {
+  id: serial("id").primaryKey(),
+  topicA: integer("topicA").notNull(),
+  topicB: integer("topicB").notNull(),
+  topicC: integer("topicC").notNull(),
+  topicD: integer("topicD").notNull(),
 
-    userId: varchar("userId", { length: 256 }).notNull(),
+  userId: varchar("userId", { length: 256 }).notNull(),
 
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updatedAt"),
-  }
-);
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updatedAt"),
+});
+
+// Test Table
+export const test_table = pgTable("test", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+// export const createTable = pgTableCreator((name) => `t3gallery_${name}`);
+
+// export const pengetahuan_am_score_table = createTable(
+//   "pengetahuan_am_score",
+//   {
+//     id: serial("id").primaryKey(),
+//     topicA: integer().notNull(),
+//     topicB: integer().notNull(),
+//     topicC: integer().notNull(),
+//     topicD: integer().notNull(),
+
+//     userId: varchar("userId", { length: 256 }).notNull(),
+
+//     createdAt: timestamp("created_at")
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updatedAt"),
+//   }
+// );
+
+// export const test_table = createTable("test", {
+//   id: serial("id").primaryKey(),
+//   name: varchar("name", { length: 100 }).notNull(),
+//   createdAt: timestamp("created_at")
+//     .default(sql`CURRENT_TIMESTAMP`)
+//     .notNull(),
+// });

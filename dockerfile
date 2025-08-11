@@ -1,5 +1,4 @@
 # Stage 1: Dependencies
-# Use the latest LTS Node.js version (Node 22) as the base image.
 FROM node:22-alpine AS deps
 WORKDIR /app
 
@@ -16,11 +15,10 @@ RUN \
 
 
 # Stage 2: Builder
-# Use the same Node.js version for the builder stage
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# FIX: Provide build-time environment variables to prevent build errors.
+# Provide build-time environment variables to prevent build errors
 ARG DATABASE_URL="postgresql://dummy_user:dummy_password@dummy_host:5432/dummy_db"
 ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV DATABASE_URL=$DATABASE_URL
@@ -36,32 +34,50 @@ RUN npm run build
 
 
 # Stage 3: Production Runner
-# Use the same lightweight Node.js version for the final stage
 FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 
-# FIX: Install `vips`, the system library required for Next.js Image Optimization.
-# This must be run as root before switching to the non-root user.
-RUN apk add --no-cache vips
+# Install system dependencies
+RUN apk add --no-cache vips netcat-openbsd postgresql-client
 
-# Create a non-root user for enhanced security
+# Install drizzle-kit CLI globally
+RUN npm install -g drizzle-kit
+
+# Create a non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy only the necessary production files from the 'builder' stage
+# Copy only necessary production files
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# Copy the data directory containing CSV files
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
+COPY --from=builder --chown=nextjs:nodejs /app/src/middleware.ts ./src/middleware.ts
 
-# Switch to the non-root user
+
+# ✅ Copy Drizzle migration files and config
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
+COPY --from=builder --chown=nextjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+
+# Switch to non-root
 USER nextjs
 
-# Expose the port the app will run on
+# Expose port
 EXPOSE 3000
 
-# The command to start the application
-CMD ["node", "server.js"]
+# CMD runs DB wait, migrations, then starts the server
+CMD sh -c "echo 'Waiting for DB to be ready on ${DATABASE_URL}...'; \
+    until nc -z db 5432; do \
+    echo 'Waiting for database connection...'; sleep 3; \
+    done; \
+    echo 'Running Drizzle migrations...'; \
+    echo 'Current directory:' && pwd && ls -la; \
+    echo 'DATABASE_URL:' && echo ${DATABASE_URL}; \
+    npm run db:migrate; \
+    echo 'Migration completed. Starting app...'; \
+    node server.js"
+
