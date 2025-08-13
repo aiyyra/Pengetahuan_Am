@@ -2,10 +2,7 @@ services:
   app:
     build:
       context: .
-      args:
-        # This passes the Clerk publishable key from your .env file into the Dockerfile during the build.
-        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-    image: your-username/my-next-app
+    image: aiyyra/pengetahuan-am
     # This loads all variables from your .env file into the container at runtime.
     env_file:
       - ./.env

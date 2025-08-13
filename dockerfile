@@ -20,9 +20,7 @@ WORKDIR /app
 
 # Provide build-time environment variables to prevent build errors
 ARG DATABASE_URL="postgresql://dummy_user:dummy_password@dummy_host:5432/dummy_db"
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV DATABASE_URL=$DATABASE_URL
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 # Copy dependencies from the 'deps' stage
 COPY --from=deps /app/node_modules ./node_modules

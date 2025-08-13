@@ -11,9 +11,11 @@ import { Check, ArrowRight, Flag, Building2, Map, Earth } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getMyScore } from "@/server/queries";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 import { Progress } from "@/components/ui/progress";
 import { PengetahuanAmScore } from "@/types";
+import SignedIn from "@/components/auth/sign-in";
+import SignedOut from "@/components/auth/sign-out";
+import SignInButton from "@/components/auth/sign-in-button";
 
 async function Scores() {
   const userScores: PengetahuanAmScore[] = await getMyScore();

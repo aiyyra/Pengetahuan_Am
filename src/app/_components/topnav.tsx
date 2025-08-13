@@ -1,9 +1,17 @@
-import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { auth } from "@/auth";
+import SignIn from "@/components/auth/sign-in-button";
+import { SignOut } from "@/components/auth/sign-out-button";
 import { Zap } from "lucide-react";
 import Link from "next/link";
 
 export function TopNav() {
+  async function AuthButton() {
+    const session = await auth();
+
+    if (!session?.user) return <SignIn />;
+
+    return <SignOut />;
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -34,7 +42,7 @@ export function TopNav() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <SignedOut>
+            {/* <SignedOut>
               <SignInButton>
                 <Button variant="ghost" className="hidden md:inline-flex">
                   Sign In
@@ -43,7 +51,8 @@ export function TopNav() {
             </SignedOut>
             <SignedIn>
               <UserButton />
-            </SignedIn>
+            </SignedIn> */}
+            <AuthButton />
           </div>
         </div>
       </div>

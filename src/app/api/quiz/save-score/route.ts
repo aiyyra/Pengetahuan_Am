@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
 import { pengetahuan_am_score_table } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import slugify from 'slugify';
+import { auth } from '@/auth';
 
 const slugifyOptions = {
   lower: true,
@@ -22,9 +22,9 @@ const topicMapping: Record<string, keyof typeof pengetahuan_am_score_table.$infe
 export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
-    const user = await auth();
+    const session = await auth();
     
-    if (!user.userId) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     const existingScore = await db
       .select()
       .from(pengetahuan_am_score_table)
-      .where(eq(pengetahuan_am_score_table.userId, user.userId))
+      .where(eq(pengetahuan_am_score_table.userId, session.user.id))
       .limit(1);
 
     if (existingScore.length > 0) {
@@ -73,11 +73,11 @@ export async function POST(request: NextRequest) {
           [topicField]: maxScore,
           updatedAt: new Date(),
         })
-        .where(eq(pengetahuan_am_score_table.userId, user.userId));
+        .where(eq(pengetahuan_am_score_table.userId, session.user.id));
     } else {
       // Create new record with default scores for other topics
       const newScoreData = {
-        userId: user.userId,
+        userId: session.user.id,
         topicA: 0,
         topicB: 0,
         topicC: 0,
